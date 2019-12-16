@@ -170,6 +170,9 @@ function main()
 {
 	$possibleActions = ["generate", "save", "restore"];
 	if (!empty($_POST)) {
+		// Header change has to be called before any echo statement
+		header("Location: index.php");
+		
 		$width = $_POST["width"];
 		$height = $_POST["height"];
 
@@ -186,9 +189,7 @@ function main()
 		else if ($width < 1 || $height < 1) {
 			sendMsg("Please input positive dimensions.", "red");
 		}
-		
-		// Header change has to be called before any echo statement
-		header("Location: index.php");
+
 		// Checks if the provided action string is among the authorized ones
 		$postKeys = array_keys($_POST);
 		if (in_array(end($postKeys), $possibleActions)) {
