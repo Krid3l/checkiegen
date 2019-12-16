@@ -90,20 +90,6 @@ function renderCheckerHtm(int $width, int $height, array $colors)
 // Checks the provided parameters then generates the board as image and as HTML 
 function generate(int $width, int $height, array $hexColors)
 {
-	if ($width > MAX_CHECK_DIM || $height > MAX_CHECK_DIM) {
-		sendMsg("Each side of the board cannot be more than " . MAX_CHECK_DIM . " squares across.", "red");
-	}
-	else if ($width < 1 || $height < 1) {
-		sendMsg("Please input dimensions greater than zero.", "red");
-	}
-
-	if (count($hexColors) > MAX_COLORS) {
-		sendMsg("Up to " . MAX_COLORS . " colors allowed.", "red");
-	}
-	else if ($width < 1 || $height < 1) {
-		sendMsg("Please enter a positive number of colors.", "red");
-	}
-
 	$hexCheckboard = array(array());
 	// Color grid generation
 	for ($i = 0; $i < $height; $i++) {
@@ -184,6 +170,23 @@ function main()
 {
 	$possibleActions = ["generate", "save", "restore"];
 	if (!empty($_POST)) {
+		$width = $_POST["width"];
+		$height = $_POST["height"];
+
+		if ($width > MAX_CHECK_DIM || $height > MAX_CHECK_DIM) {
+			sendMsg("Each side of the board cannot be more than " . MAX_CHECK_DIM . " squares across.", "red");
+		}
+		else if ($width < 1 || $height < 1) {
+			sendMsg("Please input dimensions greater than zero.", "red");
+		}
+
+		if ($_POST["colorcount"] > MAX_COLORS) {
+			sendMsg("Up to " . MAX_COLORS . " colors allowed.", "red");
+		}
+		else if ($width < 1 || $height < 1) {
+			sendMsg("Please input positive dimensions.", "red");
+		}
+		
 		// Header change has to be called before any echo statement
 		header("Location: index.php");
 		// Checks if the provided action string is among the authorized ones
@@ -192,8 +195,6 @@ function main()
 			// TODO : Add file r/w exception handling
 			switch (end($postKeys)) {
 				case "generate":
-					$width = $_POST["width"];
-					$height = $_POST["height"];
 					for ($i = 0; $i < $_POST["colorcount"]; $i++) {
 						$hexColors[] = '#' . substr(md5(mt_rand()), 0, 6);
 					}
