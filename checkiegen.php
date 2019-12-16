@@ -215,7 +215,7 @@ function main()
 	}
 	else {
 		preg_match("/\/([^\/]*)$/", $_SERVER["REQUEST_URI"], $pagename);
-		if ($pagename[0] == "/damier.php") {
+		if ($pagename[0] == "/checkiegen.php") {
 			echo '<video width="490" height="360" controls autoplay loop>' .
 				'<source src="mystery.webm">' .
 			'</video>'; 
