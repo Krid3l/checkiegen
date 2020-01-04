@@ -23,9 +23,9 @@
 		<input type="text" name="colorcount" id="colorcount" maxlength="1" size="1" value="<?php echo $colorcount ?>">
 			<br>
 		<label for=""></label>
-		<input type="submit" name="generate" value="Générer">
-		<input type="submit" name="save" value="Sauvegarder">
-		<input type="submit" name="restore" value="Restaurer">
+		<input type="submit" name="generate" value="Generate">
+		<input type="submit" name="save" value="Save">
+		<input type="submit" name="restore" value="Restore">
 	</form>
 	<?php
 		if (isset($_SESSION["feedbackMsg"])) {
