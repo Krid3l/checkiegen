@@ -19,13 +19,12 @@ function sendMsg(string $msg, string $color, bool $exit = true)
 }
 
 // Converts a color from hexa to RGB
-function convertColor(string $hexColor) : array
-{
+function convertColor(string $hexColor) : array {
 	$rgbColor = [];
 
 	// Check that the color is indeed an hexa string, case-agnostic
 	if (!preg_match('/^#[a-fA-F0-9]{6}$/i', $hexColor)) {
-		sendMsg("One of the provided colors isn't a valid hexadecimal color string.");
+		sendMsg("One of the provided colors isn't a valid hexadecimal color string.", "red");
 	}
 
 	// Actual conversion
@@ -39,8 +38,7 @@ function convertColor(string $hexColor) : array
 }
 
 // Generates a .png image render of the checkboard
-function renderCheckerImg(int $width, int $height, array $hexColors)
-{
+function renderCheckerImg(int $width, int $height, array $hexColors) {
 	// Creates an empty image with the provided dimensions, a one-pixel offset
 	// is applied to have almost-uniform borders
 	$image = imagecreatetruecolor(($width * SQ_DIM) + 1, ($height * SQ_DIM) + 1);
@@ -69,8 +67,7 @@ function renderCheckerImg(int $width, int $height, array $hexColors)
 }
 
 // Generates an HTML checkerboard with the squares' properties provided by CSS
-function renderCheckerHtm(int $width, int $height, array $colors)
-{
+function renderCheckerHtm(int $width, int $height, array $colors) {
 	echo "<div>";
 	for ($i = 0; $i < $height; $i++) {
 		echo "<div style='display: flex; flex-direction: row;'>";
@@ -88,8 +85,7 @@ function renderCheckerHtm(int $width, int $height, array $colors)
 }
 
 // Checks the provided parameters then generates the board as image and as HTML 
-function generate(int $width, int $height, array $hexColors)
-{
+function generate(int $width, int $height, array $hexColors) {
 	$hexCheckboard = array(array());
 	// Color grid generation
 	for ($i = 0; $i < $height; $i++) {
@@ -116,8 +112,7 @@ function generate(int $width, int $height, array $hexColors)
 }
 
 // Saves a checkerboard by writing the board as hex colors to a .csv file
-function save(bool $manualSave = true)
-{
+function save(bool $manualSave = true) {
 	$grid = $_SESSION["latest_hex_grid"];
 	$width = $_SESSION["latest_width"];
 	$height = $_SESSION["latest_height"];
@@ -140,8 +135,7 @@ function save(bool $manualSave = true)
 }
 
 // Loads the board from a .csv file
-function restore(bool $manualRestore = true)
-{
+function restore(bool $manualRestore = true) {
 	$fileHandle_r = fopen(SAVED_NAME, "r");
 	$restoredChk = array(array());
 	// Removes the 0th element so we can push values in the array afterwards
@@ -166,8 +160,14 @@ function restore(bool $manualRestore = true)
 	}
 }
 
-function main()
-{
+function main() {
+	// Check for r/w access to the three files used by save/load functions
+	// without truncating them
+	if (!fopen(IMAGE_NAME,	"c") ||
+		!fopen(LATEST_NAME,	"c") ||
+		!fopen(SAVED_NAME,	"c")) {
+		sendMsg("Couldn't gain access to either " . IMAGE_NAME . ", " . LATEST_NAME . " or " . SAVED_NAME . ". Check local r/w permissions.", "red");
+	}
 	$possibleActions = ["generate", "save", "restore"];
 	if (!empty($_POST)) {
 		// Header change has to be called before any echo statement
@@ -176,6 +176,7 @@ function main()
 		$width = $_POST["width"];
 		$height = $_POST["height"];
 
+		// -=-=-=- Input check rules -=-=-=-
 		if ($width > MAX_CHECK_DIM || $height > MAX_CHECK_DIM) {
 			sendMsg("Each side of the board cannot be more than " . MAX_CHECK_DIM . " squares across.", "red");
 		}
@@ -189,13 +190,15 @@ function main()
 		else if ($width < 1 || $height < 1) {
 			sendMsg("Please input positive dimensions.", "red");
 		}
+		// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 		// Checks if the provided action string is among the authorized ones
 		$postKeys = array_keys($_POST);
 		if (in_array(end($postKeys), $possibleActions)) {
-			// TODO : Add file r/w exception handling
 			switch (end($postKeys)) {
 				case "generate":
+					// Generates random hex color codes from md5 strings
+					// The user specifies the number of requested colors
 					for ($i = 0; $i < $_POST["colorcount"]; $i++) {
 						$hexColors[] = '#' . substr(md5(mt_rand()), 0, 6);
 					}
@@ -216,6 +219,7 @@ function main()
 		}
 	}
 	else {
+		// Checks if this script was directly accessed via browser
 		preg_match("/\/([^\/]*)$/", $_SERVER["REQUEST_URI"], $pagename);
 		if ($pagename[0] == "/checkiegen.php") {
 			echo '<video width="490" height="360" controls autoplay loop>' .
