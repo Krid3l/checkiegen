@@ -1,2 +1,2 @@
 # checkiegen
-A randomly-colored checkerboard generator - Simple exercice project.
+A randomly-colored checkerboard generator for use in the browser
